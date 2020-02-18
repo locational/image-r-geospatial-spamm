@@ -49,25 +49,33 @@ jobs:
 
       - name: Build image
         run: docker build . --file Dockerfile --tag image
+      
+      - name: Pull test image
+        run: docker pull alpine:latest
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Push image
+      - name: Push test image
         run: |
-          IMAGE_ID=${{ github.repository }}/$IMAGE_NAME
+            docker tag alpine:latest locational/alpine:latest
+            docker push locational/alpine:latest
 
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+      # - name: Push image
+      #   run: |
+      #     IMAGE_ID=${{ github.repository }}/$IMAGE_NAME
 
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+      #     # Strip git ref prefix from version
+      #     VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
+      #     # Strip "v" prefix from tag name
+      #     [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
+      #     # Use Docker `latest` tag convention
+      #     [ "$VERSION" == "master" ] && VERSION=latest
 
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      #     echo IMAGE_ID=$IMAGE_ID
+      #     echo VERSION=$VERSION
+
+      #     docker tag image $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
