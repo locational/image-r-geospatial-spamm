@@ -53,7 +53,7 @@ jobs:
       - name: Build image
         run: docker build . --file Dockerfile --tag image
       
-      - name: Push image
+      - name: Push image to tagged version
         run: |
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
@@ -69,5 +69,14 @@ jobs:
 
           docker tag image $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-          docker tag image $IMAGE_ID:latest
-          docker push $IMAGE_ID:latest
+
+      - name: Push image to latest
+        run: |
+          VERSION="latest"
+
+          echo IMAGE_ID=$IMAGE_NAME
+          echo VERSION=$VERSION
+
+          docker tag image $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
