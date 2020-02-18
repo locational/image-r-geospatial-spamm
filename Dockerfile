@@ -1,5 +1,4 @@
 FROM rocker/geospatial
 
-RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com'))" >.Rprofile
-RUN Rscript -e "install.packages(c('spaMM', 'geojsonio'))"
+RUN Rscript -e "install.packages(c('spaMM', 'geojsonio'), repos = 'https://cran.rstudio.com')"
 
