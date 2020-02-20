@@ -18,29 +18,9 @@ env:
   IMAGE_NAME: locational/r-geospatial-spamm
 
 jobs:
-  # Run tests.
-  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
-#   test:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - uses: actions/checkout@v2
-
-#       - name: Run tests
-#         run: |
-#           if [ -f docker-compose.test.yml ]; then
-#             docker-compose --file docker-compose.test.yml build
-#             docker-compose --file docker-compose.test.yml run sut
-#           else
-#             docker build . --file Dockerfile
-#           fi
-
   # Push image to GitHub Package Registry.
   # See also https://docs.docker.com/docker-hub/builds/
   push:
-    # Ensure test job passes before pushing image.
-#     needs: test
-
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
@@ -55,6 +35,8 @@ jobs:
       
       - name: Push image to tagged version
         run: |
+          IMAGE_ID=$IMAGE_NAME
+
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
@@ -64,19 +46,26 @@ jobs:
           # Use Docker `latest` tag convention
           [ "$VERSION" == "master" ] && VERSION=latest
 
-          echo IMAGE_ID=$IMAGE_NAME
+          TAG=$IMAGE_ID:$VERSION
+          
+          echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
+          echo TAG=$TAG
 
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag image $TAG
+          docker push $TAG
 
-      - name: Push image to latest
+      - name: Push image to latest version
         run: |
-          VERSION="latest"
+          IMAGE_ID=$IMAGE_NAME
 
-          echo IMAGE_ID=$IMAGE_NAME
+          VERSION=latest
+          TAG=$IMAGE_ID:$VERSION
+          
+          echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
+          echo TAG=$TAG
 
-          docker tag image $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker tag image $TAG
+          docker push $TAG
 
